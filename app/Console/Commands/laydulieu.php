@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Chapter;
 use App\Models\Truyen;
+use App\Models\ChapterTruyenTranhModel;
+use App\Models\TruyenTranhModel;
 
 class laydulieu extends Command
 {
@@ -13,14 +15,14 @@ class laydulieu extends Command
      *
      * @var string
      */
-    protected $signature = 'crawler:text';
+    protected $signature = 'crawler:data';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'crawler data using htmldom';
 
     /**
      * Create a new command instance.
@@ -39,17 +41,24 @@ class laydulieu extends Command
      */
     public function handle()
     {
-        $dom = file_get_html('https://www.truyenngan.com.vn/tieu-thuyet/kiem-hiep/925-y-thien-do-long-ky/35833-c1.html');
-        $post = $dom->find('.maincontent p');
-        $noichuoi = "";
-        $getpost = array();
-        foreach ($post as $key => $value) {
-            $getpost['textpost'] = $noichuoi = $noichuoi . " " . $value ->innertext;
+        $dom = file_get_html('https://toptruyen.net/truyen-tranh/dao-hai-tac/chapter-1/144571');
+        $post = $dom->find('.list-image-detail .page-chapter img');
+        $noi_chuoi = "";
+        $array_data = array();
+        foreach ($post as $key => $value)
+        {
+            $data_img = $value->src;
+            $array_data[] = $data_img;
         }
-        // luu vao db
-         // foreach ($getpost as $key => $value) {
-         //             Post::create(['post_content'=>$value]);
-         //         }        
-        print_r($getpost);
+        $array_data_img = json_encode($array_data, JSON_FORCE_OBJECT);
+        //luu vao db
+        $insert_data = new ChapterTruyenTranhModel;
+        $insert_data->truyen_tranh_id =1;
+        $insert_data->img_chapter = $array_data_img;
+        $insert_data->save();
+
+        echo "<pre>";   
+        print_r($array_data_img);
+        echo "<pre>"; 
     }
 }
